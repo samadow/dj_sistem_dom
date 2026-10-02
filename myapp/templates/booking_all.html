@@ -1,0 +1,186 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Ҳамаи бронкуниҳо | Manzil{% endblock %}
+{% block bookings_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 16px 18px;
+        border: 1px solid rgba(23,33,31,.07);
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: 0 8px 26px rgba(35,48,44,.045);
+    }
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 40px;
+        border-radius: 12px;
+        color: var(--brand);
+        background: #e9f3f0;
+    }
+    .summary-icon.warm { color: #99591f; background: #fff0df; }
+    .summary-icon svg { width: 20px; height: 20px; }
+    .summary-card strong { display: block; font-size: 18px; line-height: 1; }
+    .summary-card span { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .booking-list { display: grid; gap: 13px; }
+    .booking-row {
+        display: grid;
+        grid-template-columns: minmax(210px, 1.3fr) minmax(150px, .9fr) minmax(120px, .6fr) minmax(130px, .7fr) auto;
+        align-items: center;
+        gap: 18px;
+        padding: 17px 19px;
+        border: 1px solid rgba(23,33,31,.08);
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: 0 9px 28px rgba(35,48,44,.055);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .booking-row:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(35,48,44,.09); }
+    .apartment-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .apartment-icon { width: 43px; height: 43px; display: grid; place-items: center; flex: 0 0 43px; border-radius: 13px; color: var(--brand); background: #e8f2ef; }
+    .apartment-icon svg { width: 21px; height: 21px; }
+    .apartment-info strong, .cell strong { display: block; overflow: hidden; color: #2b3b37; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .apartment-info span, .cell span { display: block; margin-top: 4px; color: #8a9691; font-size: 9px; text-transform: uppercase; letter-spacing: .04em; }
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 7px 10px; border-radius: 999px; color: #8a5c1f; background: #fff2df; font-size: 10px; font-weight: 800; }
+    .status-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #e3a247; }
+    .status-pill.confirmed { color: #17634f; background: #e8f5f0; }
+    .status-pill.confirmed::before { background: #2e9c75; }
+    .row-actions { display: flex; gap: 7px; }
+    .action-form { margin: 0; }
+    .action-link { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 10px; color: var(--brand); background: #edf4f2; text-decoration: none; cursor: pointer; }
+    .action-link.confirm { color: #17634f; background: #e8f5f0; }
+    .action-link.reject { color: #99591f; background: #fff2df; }
+    .action-link.delete { color: var(--danger); background: #fff0f1; }
+    .action-link:hover { filter: brightness(.96); }
+    .action-link svg { width: 16px; height: 16px; }
+    @media (max-width: 1050px) {
+        .booking-row { grid-template-columns: 1.3fr .9fr .7fr auto; }
+        .booking-row .created-cell { display: none; }
+    }
+    @media (max-width: 740px) {
+        .booking-summary { grid-template-columns: 1fr 1fr; }
+        .booking-summary .summary-card:last-child { grid-column: 1 / -1; }
+        .booking-row { grid-template-columns: 1fr auto; gap: 13px; }
+        .booking-row .user-cell, .booking-row .created-cell { display: block; grid-column: 1 / -1; padding-left: 55px; }
+        .booking-row .status-cell { grid-column: 1; padding-left: 55px; }
+        .row-actions { grid-column: 2; grid-row: 1; }
+    }
+    @media (max-width: 480px) {
+        .booking-summary { grid-template-columns: 1fr; }
+        .booking-summary .summary-card:last-child { grid-column: auto; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Идоракунии бронкунӣ</p>
+            <h1>Ҳамаи бронкуниҳо</h1>
+            <p class="lead">Рӯйхати бронкуниҳои квартираҳо ва ҳолати ҷории онҳо.</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'booking_cr' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Бронкунии нав</span>
+        </a>
+    </div>
+
+    <section class="booking-summary" aria-label="Омори бронкунӣ">
+        <div class="summary-card">
+            <span class="summary-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span>
+            <div><strong>{{ bookings|length }}</strong><span>Ҳамаи бронкуниҳо</span></div>
+        </div>
+        <div class="summary-card">
+            <span class="summary-icon warm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <div><strong>Live</strong><span>Ҳолати ҷорӣ</span></div>
+        </div>
+        <div class="summary-card">
+            <span class="summary-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span>
+            <div><strong>24/7</strong><span>Дастрасии маълумот</span></div>
+        </div>
+    </section>
+
+    <section class="booking-list" aria-label="Рӯйхати бронкуниҳо">
+        {% for booking in bookings %}
+            <article class="booking-row">
+                <div class="apartment-info">
+                    <span class="apartment-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
+                    </span>
+                    <div>
+                        <strong>Квартира №{{ booking.apartment.number }}</strong>
+                        <span>{{ booking.apartment.building.name }}</span>
+                    </div>
+                </div>
+
+                <div class="cell user-cell">
+                    <strong>{{ booking.user.username }}</strong>
+                    <span>Корбар</span>
+                </div>
+
+                <div class="status-cell">
+                    {% if booking.status == "confirmed" %}
+                        <span class="status-pill confirmed">{{ booking.status }}</span>
+                    {% else %}
+                        <span class="status-pill">{{ booking.status }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="cell created-cell">
+                    <strong>{{ booking.created_at|date:"d.m.Y, H:i" }}</strong>
+                    <span>Санаи сохтан</span>
+                </div>
+
+                <div class="row-actions">
+                    {% if booking.status == 'pending' %}
+                        <form class="action-form" method="post" action="{% url 'booking_confirm' booking.pk %}">
+                            {% csrf_token %}
+                            <button class="action-link confirm" type="submit" aria-label="Тасдиқ кардан" title="Тасдиқ кардан">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
+                            </button>
+                        </form>
+                        <form class="action-form" method="post" action="{% url 'booking_reject' booking.pk %}">
+                            {% csrf_token %}
+                            <button class="action-link reject" type="submit" aria-label="Рад кардан" title="Рад кардан">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                            </button>
+                        </form>
+                    {% elif booking.status == 'confirmed' %}
+                        <form class="action-form" method="post" action="{% url 'booking_cancel' booking.pk %}">
+                            {% csrf_token %}
+                            <button class="action-link reject" type="submit" aria-label="Бекор кардан" title="Бекор кардан">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a class="action-link" href="{% url 'booking_up' booking.pk %}" aria-label="Тағйир додан">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/></svg>
+                    </a>
+                    <a class="action-link delete" href="{% url 'booking_delete' booking.pk %}" aria-label="Нест кардан">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg>
+                    </a>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty">
+                <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span>
+                <h2>Ҳоло бронкунӣ нест</h2>
+                <p>Бронкунии аввалро барои яке аз квартираҳо эҷод кунед.</p>
+                <a class="btn btn-primary" href="{% url 'booking_cr' %}">Бронкунии нав</a>
+            </div>
+        {% endfor %}
+    </section>
+{% endblock %}

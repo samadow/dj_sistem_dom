@@ -1,0 +1,53 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Квартира №{{ apartment.number }} | Manzil{% endblock %}
+{% block apartments_active %}active{% endblock %}
+{% block extra_css %}
+<style>
+    .apartment-layout { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr); gap: 20px; }
+    .detail-card { overflow: hidden; border: 1px solid rgba(23,33,31,.08); border-radius: 23px; background: #fff; box-shadow: 0 18px 50px rgba(35,48,44,.075); }
+    .detail-photo { min-height: 330px; display: grid; place-items: center; color: rgba(20,107,97,.45); background: linear-gradient(145deg,#dcebe6,#bfd8cf); }
+    .detail-photo img { width: 100%; height: 100%; max-height: 460px; object-fit: cover; }
+    .detail-photo svg { width: 90px; height: 90px; }
+    .detail-body { padding: 27px; }
+    .detail-body h2 { margin: 0 0 18px; font-family: Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 500; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+    .detail-item { padding: 13px; border: 1px solid #e5eae7; border-radius: 12px; background: #fbfcfb; }
+    .detail-item span { display: block; color: #929d99; font-size: 10px; }
+    .detail-item strong { display: block; margin-top: 5px; font-size: 13px; overflow-wrap: anywhere; }
+    .detail-description { margin: 21px 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    @media (max-width: 760px) { .apartment-layout { grid-template-columns: 1fr; } .detail-photo { min-height: 230px; max-height: 320px; } }
+    @media (max-width: 480px) { .detail-grid { grid-template-columns: 1fr; } .detail-body { padding: 20px; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div><p class="eyebrow">Маълумоти квартира</p><h1>Квартира №{{ apartment.number }}</h1><p class="lead"><a href="{% url 'bulding_detail' apartment.building.pk %}">{{ apartment.building.name }}</a> · {{ apartment.building.address }}</p></div>
+    <a class="btn btn-light" href="{% url 'bulding_detail' apartment.building.pk %}">Баргашт ба бино</a>
+</div>
+<div class="apartment-layout">
+    <div class="detail-card detail-photo">
+        {% if apartment.image %}<img src="{{ apartment.image.url }}" alt="Квартира №{{ apartment.number }}">
+        {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3zM9 21v-6h6v6M7 11h2M15 11h2"/></svg>{% endif %}
+    </div>
+    <section class="detail-card detail-body" aria-label="Маълумоти квартира">
+        <h2>Квартира №{{ apartment.number }}</h2>
+        <div class="detail-grid">
+            <div class="detail-item"><span>Бино</span><strong><a href="{% url 'bulding_detail' apartment.building.pk %}">{{ apartment.building.name }}</a></strong></div>
+            <div class="detail-item"><span>Ошёна</span><strong>{{ apartment.floor }}</strong></div>
+            <div class="detail-item"><span>Ҳуҷраҳо</span><strong>{{ apartment.rooms }}</strong></div>
+            <div class="detail-item"><span>Масоҳат</span><strong>{{ apartment.area }} м²</strong></div>
+            <div class="detail-item"><span>Нарх</span><strong>{{ apartment.price }} сомонӣ</strong></div>
+            <div class="detail-item"><span>Ҳолат</span><strong>{{ apartment.get_status_display }}</strong></div>
+            <div class="detail-item"><span>Балкон</span><strong>{% if apartment.balcony %}Ҳаст{% else %}Нест{% endif %}</strong></div>
+            <div class="detail-item"><span>Фаъолият</span><strong>{% if apartment.is_active %}Фаъол{% else %}Ғайрифаъол{% endif %}</strong></div>
+        </div>
+        <p class="detail-description">{{ apartment.description|default:"Барои ин квартира ҳоло тавсиф ворид нашудааст."|linebreaksbr }}</p>
+        <div class="detail-actions">
+            {% if current_user.role == 'admin' or current_user.role == 'manager' %}<a class="btn btn-primary" href="{% url 'apartment_up' apartment.pk %}">Тағйир додан</a>{% endif %}
+            {% if current_user.role == 'user' and apartment.status == 'available' %}<a class="btn btn-primary" href="{% url 'booking_cr' %}">Забронировать</a>{% endif %}
+            <a class="btn btn-light" href="{% url 'apartment_all' %}">Ҳамаи квартираҳо</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Ҳамаи квартираҳо | Manzil{% endblock %}
+{% block apartments_active %}active{% endblock %}
+{% block content %}
+    <div class="page-head">
+        <div><p class="eyebrow">{% if current_user.role == 'user' %}Каталог недвижимости{% else %}Управление недвижимостью{% endif %}</p><h1>{% if current_user.role == 'user' %}Поиск квартир{% else %}Квартиры{% endif %}</h1><p class="lead">Доступно в каталоге: {{ buldings|length }} квартир.</p></div>
+        {% if current_user.role == 'admin' or current_user.role == 'manager' %}
+        <a class="btn btn-primary" href="{% url 'apartment_cr' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Квартираи нав</a>
+        {% endif %}
+    </div>
+    <section class="cards">
+        {% for apartment in buldings %}
+            <article class="apartment-card">
+                <div class="card-image">
+                    {% if apartment.image %}
+                        <img src="{{ apartment.image.url }}" alt="Квартира №{{ apartment.number }}" loading="lazy">
+                    {% else %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/><path d="M7 11h2M15 11h2"/></svg>
+                    {% endif %}
+                    <span class="badge status-{{ apartment.status }}">{{ apartment.get_status_display }}</span>
+                </div>
+                <div class="card-body">
+                    <h2><a href="{% url 'apartment_detail' apartment.pk %}">Квартира №{{ apartment.number }}</a></h2>
+                    <p class="card-subtitle"><a href="{% url 'bulding_detail' apartment.building.pk %}">{{ apartment.building.name }}</a></p>
+                    <div class="meta-grid">
+                        <div class="meta-item"><span>Ошёна</span><strong>{{ apartment.floor }}</strong></div>
+                        <div class="meta-item"><span>Ҳуҷра</span><strong>{{ apartment.rooms }}</strong></div>
+                        <div class="meta-item"><span>Масоҳат</span><strong>{{ apartment.area }} м²</strong></div>
+                        <div class="meta-item"><span>Нарх</span><strong>{{ apartment.price }}</strong></div>
+                        <div class="meta-item"><span>Балкон</span><strong>{% if apartment.balcony %}Ҳаст{% else %}Нест{% endif %}</strong></div>
+                        <div class="meta-item"><span>Фаъол</span><strong>{% if apartment.is_active %}Ҳа{% else %}Не{% endif %}</strong></div>
+                    </div>
+                    <div class="card-actions">
+                        <a class="btn btn-primary" href="{% url 'apartment_detail' apartment.pk %}">Маълумот</a>
+                        {% if current_user.role == 'admin' or current_user.role == 'manager' %}
+                        <a class="btn btn-light" href="{% url 'apartment_up' apartment.pk %}">Тағйир додан</a>
+                        <a class="btn btn-danger" href="{% url 'apartment_delete' apartment.pk %}">Нест кардан</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty">
+                <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg></span>
+                <h2>Ҳоло квартира нест</h2>
+                <p>Квартираи аввалро ба яке аз биноҳо илова кунед.</p>
+                {% if current_user.role == 'admin' or current_user.role == 'manager' %}<a class="btn btn-primary" href="{% url 'apartment_cr' %}">Иловаи квартира</a>{% endif %}
+            </div>
+        {% endfor %}
+    </section>
+{% endblock %}

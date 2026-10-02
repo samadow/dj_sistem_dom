@@ -1,0 +1,22 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Ҳамаи дархостҳо | Manzil{% endblock %}
+{% block inquiries_active %}active{% endblock %}
+{% block content %}
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Идоракунии дархостҳо</p>
+            <h1>Ҳамаи дархостҳо</h1>
+            <p class="lead">{{ inquiries|length }} дархост дар рӯйхат мавҷуд аст.</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'inquiry_cr' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Дархости нав
+        </a>
+    </div>
+
+    <div class="table-scroll"><table class="data-table"><thead><tr><th>Клиент</th><th>Квартира</th><th>Вопрос</th><th>Статус</th><th>Дата</th><th>Действия</th></tr></thead><tbody>
+    {% for inquiry in inquiries %}
+    <tr><td><strong>{{ inquiry.user.username }}</strong></td><td><a href="{% url 'apartment_detail' inquiry.apartment.pk %}">{{ inquiry.apartment }}</a></td><td>{{ inquiry.question|truncatechars:70 }}{% if inquiry.answer %}<small>Ответ: {{ inquiry.answer|truncatechars:70 }}</small>{% endif %}</td><td><span class="status-chip {% if not inquiry.answer %}pending{% endif %}">{% if inquiry.answer %}Отвечено{% else %}Ждёт ответа{% endif %}</span></td><td>{{ inquiry.created_at|date:"d.m.Y H:i" }}</td><td><div class="table-actions"><a class="btn btn-primary" href="{% url 'inquiry_up' inquiry.pk %}">{% if inquiry.answer %}Открыть{% else %}Ответить{% endif %}</a><a class="btn btn-light" href="{% url 'inquiry_delete' inquiry.pk %}">Удалить</a></div></td></tr>
+    {% empty %}<tr><td colspan="6" class="dash-empty">Заявок пока нет.</td></tr>{% endfor %}
+    </tbody></table></div>
+{% endblock %}

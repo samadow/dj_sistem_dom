@@ -1,0 +1,11 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Саволҳои ман | Manzil{% endblock %}
+{% block my_inquiries_active %}active{% endblock %}
+{% block extra_css %}{% include "dashboard_styles.html" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">Личный кабинет</p><h1>Мои заявки</h1><p class="lead">Ваши вопросы по квартирам и ответы на них.</p></div><a class="btn btn-primary" href="{% url 'inquiry_cr' %}">Новая заявка</a></div>
+<div class="dash-panel"><ul class="dash-list">
+    {% for inquiry in inquiries %}<li><div><a href="{% url 'apartment_detail' inquiry.apartment.pk %}"><strong>{{ inquiry.apartment }}</strong></a><small>{{ inquiry.question }}</small><small>Ответ: {{ inquiry.answer|default:"Пока нет ответа" }}</small></div><span class="dash-pill {% if not inquiry.answer %}waiting{% endif %}">{% if inquiry.answer %}Есть ответ{% else %}Ожидает ответа{% endif %}</span></li>
+    {% empty %}<li><span class="dash-empty">У вас пока нет заявок.</span></li>{% endfor %}
+</ul></div>
+{% endblock %}

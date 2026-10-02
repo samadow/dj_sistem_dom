@@ -1,0 +1,82 @@
+{% extends "dashboard_base.html" %}
+{% block title %}{{ detail.name }} | Manzil{% endblock %}
+{% block buildings_active %}active{% endblock %}
+{% block extra_css %}
+<style>
+    .building-hero { display: grid; grid-template-columns: minmax(260px, .9fr) minmax(0, 1.1fr); overflow: hidden; border-radius: 23px; background: #fff; box-shadow: 0 18px 50px rgba(35,48,44,.075); }
+    .building-photo { min-height: 300px; display: grid; place-items: center; color: rgba(20,107,97,.45); background: linear-gradient(145deg,#dcebe6,#bfd8cf); }
+    .building-photo img { width: 100%; height: 100%; max-height: 440px; object-fit: cover; }
+    .building-photo svg { width: 90px; height: 90px; }
+    .building-info { padding: 28px; }
+    .building-info h2, .section-head h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 500; }
+    .building-info p { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 20px 0; }
+    .fact { padding: 13px; border: 1px solid #e5eae7; border-radius: 12px; background: #fbfcfb; }
+    .fact span { display: block; color: #929d99; font-size: 10px; }
+    .fact strong { display: block; margin-top: 5px; font-size: 13px; overflow-wrap: anywhere; }
+    .building-links, .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .section-head { margin: 34px 0 17px; }
+    .section-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .apartment-card h3 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-weight: 500; }
+    .apartment-card h3 a { text-decoration: none; }
+    .apartment-card h3 a:hover { color: var(--brand); }
+    .apartment-card .card-actions .btn { flex: 1; }
+    @media (max-width: 760px) { .building-hero { grid-template-columns: 1fr; } .building-photo { min-height: 220px; max-height: 300px; } }
+    @media (max-width: 480px) { .facts { grid-template-columns: 1fr; } .building-info { padding: 20px; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div><p class="eyebrow">Маълумоти бино</p><h1>{{ detail.name }}</h1><p class="lead">{{ detail.address }}</p></div>
+    <a class="btn btn-light" href="{% url 'bulding_all' %}">Баргашт ба биноҳо</a>
+</div>
+<section class="building-hero" aria-label="Маълумоти бино">
+    <div class="building-photo">
+        {% if detail.image %}<img src="{{ detail.image.url }}" alt="{{ detail.name }}">
+        {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 21V6l8-4 8 4v15M9 21v-4h6v4M8 8h2M14 8h2M8 12h2M14 12h2"/></svg>{% endif %}
+    </div>
+    <div class="building-info">
+        <h2>{{ detail.name }}</h2>
+        <p>{{ detail.description|default:"Барои ин бино ҳоло тавсиф ворид нашудааст."|linebreaksbr }}</p>
+        <div class="facts">
+            <div class="fact"><span>Суроға</span><strong>{{ detail.address }}</strong></div>
+            <div class="fact"><span>Ошёнаҳо</span><strong>{{ detail.total_floors }}</strong></div>
+            <div class="fact"><span>Ҳолат</span><strong>{{ detail.status }}</strong></div>
+            <div class="fact"><span>Санаи супоридан</span><strong>{{ detail.handover_date|date:"d.m.Y"|default:"Муайян нест" }}</strong></div>
+            <div class="fact"><span>Фаъолият</span><strong>{% if detail.is_active %}Фаъол{% else %}Ғайрифаъол{% endif %}</strong></div>
+            <div class="fact"><span>Квартираҳо</span><strong>{{ detail.apartments.all|length }}</strong></div>
+        </div>
+        <div class="building-links">
+            {% if detail.map_url %}<a class="btn btn-light" href="{{ detail.map_url }}" target="_blank" rel="noopener noreferrer">Дар харита дидан</a>{% endif %}
+            {% if current_user.role == 'admin' %}<a class="btn btn-primary" href="{% url 'bulding_up' detail.pk %}">Тағйир додан</a>{% endif %}
+        </div>
+    </div>
+</section>
+<div class="section-head">
+    <div><h2>Квартираҳои ин бино</h2><p>Рӯйхати квартираҳои сабтшуда дар {{ detail.name }}.</p></div>
+    {% if current_user.role == 'admin' or current_user.role == 'manager' %}<a class="btn btn-primary" href="{% url 'apartment_cr' %}">Иловаи квартира</a>{% endif %}
+</div>
+<section class="cards" aria-label="Квартираҳои ин бино">
+    {% for apartment in detail.apartments.all %}
+    <article class="apartment-card">
+        <div class="card-image">
+            {% if apartment.image %}<img src="{{ apartment.image.url }}" alt="Квартира №{{ apartment.number }}" loading="lazy">
+            {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3zM9 21v-6h6v6"/></svg>{% endif %}
+            <span class="badge">{{ apartment.get_status_display }}</span>
+        </div>
+        <div class="card-body">
+            <h3><a href="{% url 'apartment_detail' apartment.pk %}">Квартира №{{ apartment.number }}</a></h3>
+            <div class="meta-grid">
+                <div class="meta-item"><span>Ошёна</span><strong>{{ apartment.floor }}</strong></div>
+                <div class="meta-item"><span>Ҳуҷраҳо</span><strong>{{ apartment.rooms }}</strong></div>
+                <div class="meta-item"><span>Масоҳат</span><strong>{{ apartment.area }} м²</strong></div>
+                <div class="meta-item"><span>Нарх</span><strong>{{ apartment.price }} сомонӣ</strong></div>
+            </div>
+            <div class="card-actions"><a class="btn btn-primary" href="{% url 'apartment_detail' apartment.pk %}">Маълумоти квартира</a></div>
+        </div>
+    </article>
+    {% empty %}
+    <div class="empty"><h2>Ҳоло квартира нест</h2><p>Квартираи аввалро ба ин бино илова кунед.</p>{% if current_user.role == 'admin' or current_user.role == 'manager' %}<a class="btn btn-primary" href="{% url 'apartment_cr' %}">Иловаи квартира</a>{% endif %}</div>
+    {% endfor %}
+</section>
+{% endblock %}

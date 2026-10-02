@@ -1,0 +1,135 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Фурӯш №{{ sale.pk }} | Manzil{% endblock %}
+{% block sales_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); gap: 20px; }
+    .receipt {
+        overflow: hidden;
+        border: 1px solid rgba(23,33,31,.08);
+        border-radius: 23px;
+        background: #fff;
+        box-shadow: 0 18px 50px rgba(35,48,44,.075);
+    }
+    .receipt-head {
+        position: relative;
+        overflow: hidden;
+        padding: 28px;
+        color: #fff;
+        background: linear-gradient(145deg, #173c38, #0d5a51);
+    }
+    .receipt-head::after {
+        content: "";
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        top: -110px;
+        right: -70px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 50%;
+        box-shadow: 0 0 0 28px rgba(255,255,255,.035), 0 0 0 56px rgba(255,255,255,.02);
+    }
+    .receipt-label { margin: 0 0 8px; color: #f6c693; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .receipt-head h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 29px; font-weight: 500; }
+    .receipt-head p { margin: 8px 0 0; color: rgba(255,255,255,.65); font-size: 11px; }
+    .receipt-body { padding: 27px; }
+    .price-block { padding: 20px; border: 1px solid #d9e8e3; border-radius: 16px; background: #eef6f3; }
+    .price-block span { color: #6c817b; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+    .price-block strong { display: block; margin-top: 7px; color: var(--brand-dark); font-family: Georgia, "Times New Roman", serif; font-size: clamp(27px, 4vw, 38px); font-weight: 600; }
+    .detail-section { margin-top: 25px; }
+    .detail-section h3 { margin: 0 0 13px; color: #35443f; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .detail-item { padding: 13px 14px; border: 1px solid #e5eae7; border-radius: 12px; background: #fbfcfb; }
+    .detail-item span { display: block; color: #929d99; font-size: 9px; text-transform: uppercase; letter-spacing: .05em; }
+    .detail-item strong { display: block; margin-top: 5px; overflow-wrap: anywhere; color: #34433f; font-size: 12px; }
+    .property-card { overflow: hidden; height: fit-content; border: 1px solid rgba(23,33,31,.08); border-radius: 21px; background: #fff; box-shadow: 0 13px 36px rgba(35,48,44,.07); }
+    .property-image { height: 195px; display: grid; place-items: center; overflow: hidden; color: rgba(20,107,97,.47); background: linear-gradient(145deg,#dcebe6,#bfd8cf); }
+    .property-image img { width: 100%; height: 100%; object-fit: cover; }
+    .property-image > svg { width: 75px; height: 75px; }
+    .property-body { padding: 20px; }
+    .property-body h3 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-weight: 500; }
+    .property-body > p { margin: 6px 0 16px; color: var(--muted); font-size: 11px; }
+    .property-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .property-meta div { padding: 10px; border-radius: 10px; background: #f3f6f4; }
+    .property-meta span { display: block; color: #929d99; font-size: 8px; text-transform: uppercase; }
+    .property-meta strong { display: block; margin-top: 4px; font-size: 11px; }
+    @media (max-width: 850px) { .detail-layout { grid-template-columns: 1fr; } .property-card { display: grid; grid-template-columns: .8fr 1.2fr; } .property-image { height: 100%; min-height: 210px; } }
+    @media (max-width: 560px) { .detail-grid { grid-template-columns: 1fr; } .property-card { display: block; } .property-image { height: 180px; min-height: 0; } .receipt-body, .receipt-head { padding: 21px; } }
+    @media print {
+        .sidebar, .mobile-bar, .topbar, .page-head .btn { display: none !important; }
+        .shell { display: block; }
+        .main { padding: 0; }
+        body { background: #fff; }
+        .receipt, .property-card { box-shadow: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Маълумоти фурӯш</p>
+            <h1>Фурӯш №{{ sale.pk }}</h1>
+            <p class="lead">Маълумоти пурраи шартнома, харидор ва квартира.</p>
+        </div>
+        <a class="btn btn-light" href="{% url 'sale_all' %}">Баргашт ба рӯйхат</a>
+    </div>
+
+    <div class="detail-layout">
+        <section class="receipt">
+            <div class="receipt-head">
+                <p class="receipt-label">Manzil · Sale document</p>
+                <h2>Ҳуҷҷати фурӯш</h2>
+                <p>Сабт аз {{ sale.sold_at|date:"d.m.Y, H:i" }}</p>
+            </div>
+            <div class="receipt-body">
+                <div class="price-block">
+                    <span>Нархи ниҳоии фурӯш</span>
+                    <strong>{{ sale.final_price }} сомонӣ</strong>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Маълумоти харидор</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><span>Ному насаб</span><strong>{{ sale.buyer_name }}</strong></div>
+                        <div class="detail-item"><span>Рақами телефон</span><strong>{{ sale.buyer_phone }}</strong></div>
+                        <div class="detail-item"><span>Ҳисоби корбар</span><strong>{{ sale.buyer.username|default:"Пайваст нашудааст" }}</strong></div>
+                        <div class="detail-item"><span>Санаи фурӯш</span><strong>{{ sale.sold_at|date:"d.m.Y, H:i" }}</strong></div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Маълумоти объект</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><span>Бино</span><strong>{{ sale.apartment.building.name }}</strong></div>
+                        <div class="detail-item"><span>Квартира</span><strong>№{{ sale.apartment.number }}</strong></div>
+                        <div class="detail-item"><span>Масоҳат</span><strong>{{ sale.apartment.area }} м²</strong></div>
+                        <div class="detail-item"><span>Ҳуҷраҳо</span><strong>{{ sale.apartment.rooms }}</strong></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="property-card">
+            <div class="property-image">
+                {% if sale.apartment.image %}
+                    <img src="{{ sale.apartment.image.url }}" alt="Квартира №{{ sale.apartment.number }}">
+                {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/><path d="M7 11h2M15 11h2"/></svg>
+                {% endif %}
+            </div>
+            <div class="property-body">
+                <h3>Квартира №{{ sale.apartment.number }}</h3>
+                <p>{{ sale.apartment.building.name }}</p>
+                <div class="property-meta">
+                    <div><span>Ошёна</span><strong>{{ sale.apartment.floor }}</strong></div>
+                    <div><span>Ҳуҷра</span><strong>{{ sale.apartment.rooms }}</strong></div>
+                    <div><span>Масоҳат</span><strong>{{ sale.apartment.area }} м²</strong></div>
+                    <div><span>Ҳолат</span><strong>{{ sale.apartment.status }}</strong></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+{% endblock %}

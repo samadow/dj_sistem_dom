@@ -1,0 +1,50 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Панели Admin | Manzil{% endblock %}
+{% block dashboard_active %}active{% endblock %}
+{% block extra_css %}{% include "dashboard_styles.html" %}{% endblock %}
+{% block content %}
+<section class="dash-hero">
+    <div>
+        <span class="dash-kicker">Обзор системы</span>
+        <h1>Здравствуйте, {{ current_user.username }}</h1>
+        <p>Данные по объектам, пользователям и продажам в одном месте.</p>
+    </div>
+    <a class="btn" href="{% url 'user_list' %}">Пользователи ↗</a>
+</section>
+
+<div class="dash-grid" aria-label="Омори умумӣ">
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Пользователи</span><span class="dash-stat-icon">◎</span></div><strong>{{ user_count }}</strong></div>
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Активные здания</span><span class="dash-stat-icon">▤</span></div><strong>{{ building_count }}</strong></div>
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Активные квартиры</span><span class="dash-stat-icon">⌂</span></div><strong>{{ apartment_count }}</strong></div>
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Продажи</span><span class="dash-stat-icon">◈</span></div><strong>{{ sale_count }}</strong></div>
+</div>
+
+<section class="dash-section">
+    <div class="dash-section-head"><h2>Быстрые действия</h2></div>
+    <div class="dash-action-grid">
+        <a class="dash-action" href="{% url 'creat_b' %}"><span><strong>Добавить здание</strong><small>Новый объект в каталоге</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'apartment_cr' %}"><span><strong>Добавить квартиру</strong><small>Разместить в существующем здании</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'user_list' %}"><span><strong>Назначить менеджера</strong><small>Из зарегистрированных пользователей</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'inquiry_all' %}"><span><strong>Саволҳо</strong><small>Ҷавоб ба харидорон</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'booking_all' %}"><span><strong>Бронҳо</strong><small>Тасдиқ ё рад кардан</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'sale_all' %}"><span><strong>Фурӯшҳо</strong><small>Дидани сабтҳои фурӯш</small></span><span class="dash-arrow">↗</span></a>
+    </div>
+</section>
+
+<div class="dash-two dash-section">
+    <section>
+        <div class="dash-section-head"><h2>Корбарони охирин</h2><a href="{% url 'user_list' %}">Ҳамааш →</a></div>
+        <div class="dash-panel"><ul class="dash-list">
+            {% for person in recent_users %}<li><div><strong>{{ person.username }}</strong><small>{{ person.phone_number }}</small></div><span class="dash-pill">{{ person.get_role_display }}</span></li>
+            {% empty %}<li><span class="dash-empty">Ҳоло корбар нест.</span></li>{% endfor %}
+        </ul></div>
+    </section>
+    <section>
+        <div class="dash-section-head"><h2>Фурӯшҳои охирин</h2><a href="{% url 'sale_all' %}">Ҳамааш →</a></div>
+        <div class="dash-panel"><ul class="dash-list">
+            {% for sale in recent_sales %}<li><div><a href="{% url 'sale_detail' sale.pk %}"><strong>{{ sale.apartment }}</strong></a><small>{{ sale.buyer_name }} · {{ sale.sold_at|date:"d.m.Y" }}</small></div><span class="dash-pill sold">Фурӯхта шуд</span></li>
+            {% empty %}<li><span class="dash-empty">Ҳоло фурӯш нест.</span></li>{% endfor %}
+        </ul></div>
+    </section>
+</div>
+{% endblock %}

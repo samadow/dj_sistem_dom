@@ -1,0 +1,11 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Бронҳои ман | Manzil{% endblock %}
+{% block my_bookings_active %}active{% endblock %}
+{% block extra_css %}{% include "dashboard_styles.html" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">Личный кабинет</p><h1>Мои бронирования</h1><p class="lead">Следите за статусом ваших бронирований.</p></div><a class="btn btn-primary" href="{% url 'apartment_all' %}">Выбрать квартиру</a></div>
+<div class="dash-panel"><ul class="dash-list">
+    {% for booking in bookings %}<li><div><a href="{% url 'apartment_detail' booking.apartment.pk %}"><strong>{{ booking.apartment }}</strong></a><small>{{ booking.created_at|date:"d.m.Y, H:i" }}</small></div><span class="dash-pill {% if booking.status == 'pending' %}waiting{% endif %}">{{ booking.get_status_display }}</span>{% if booking.status == 'pending' or booking.status == 'confirmed' %}<form method="post" action="{% url 'booking_cancel' booking.pk %}">{% csrf_token %}<button class="btn btn-light" type="submit">Отменить</button></form>{% endif %}</li>
+    {% empty %}<li><span class="dash-empty">У вас пока нет бронирований. Выберите квартиру в каталоге.</span></li>{% endfor %}
+</ul></div>
+{% endblock %}

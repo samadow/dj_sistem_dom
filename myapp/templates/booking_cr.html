@@ -1,0 +1,64 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Бронкунии нав | Manzil{% endblock %}
+{% block bookings_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border: 1px solid #d9e8e3;
+        border-radius: 14px;
+        color: #31534c;
+        background: #eef6f3;
+        font-size: 11px;
+        line-height: 1.55;
+    }
+    .booking-note svg { width: 19px; height: 19px; flex: 0 0 19px; color: var(--brand); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Идоракунии бронкунӣ</p>
+            <h1>Бронкунии нав</h1>
+            <p class="lead">Квартира ва корбарро интихоб карда, ҳолати бронкуниро муайян намоед.</p>
+        </div>
+        <a class="btn btn-light" href="{% url 'booking_all' %}">Ҳамаи бронкуниҳо</a>
+    </div>
+
+    <section class="panel">
+        <div class="panel-head">
+            <span class="panel-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/>
+                </svg>
+            </span>
+            <div>
+                <strong>Маълумоти бронкунӣ</strong>
+                <span>Майдонҳои заруриро пур кунед.</span>
+            </div>
+        </div>
+
+        <form class="model-form" method="post">
+            {% csrf_token %}
+            <div class="booking-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                <span>Пеш аз сабт дурустии квартира, корбар ва ҳолати бронкуниро санҷед.</span>
+            </div>
+            <div class="form-fields">{{ form.as_p }}</div>
+            <div class="form-actions">
+                <a class="btn btn-light" href="{% url 'booking_all' %}">Бекор кардан</a>
+                <button class="btn btn-primary" type="submit">
+                    <span>Сабт кардани бронкунӣ</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </button>
+            </div>
+        </form>
+    </section>
+{% endblock %}

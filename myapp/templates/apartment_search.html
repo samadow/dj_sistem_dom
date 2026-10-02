@@ -1,0 +1,37 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Поиск квартир | Manzil{% endblock %}
+{% block apartments_active %}active{% endblock %}
+{% block extra_css %}
+<style>
+    .search-panel { padding:20px; margin-bottom:24px; border:1px solid #e3eaf1; border-radius:20px; background:#fff; box-shadow:0 12px 30px rgba(28,53,77,.055); }
+    .search-grid { display:grid; grid-template-columns:2fr repeat(3,minmax(100px,1fr)) 1.2fr auto; align-items:end; gap:11px; }
+    .search-field label { display:block; margin-bottom:7px; color:#60768d; font-size:11px; font-weight:800; }
+    .search-field input { width:100%; min-height:44px; padding:10px 12px; border:1px solid #dbe5ed; border-radius:10px; color:#182b42; background:#fbfdff; font:inherit; font-size:12px; }
+    .search-field input:focus { outline:3px solid rgba(14,170,162,.18); border-color:#0eaaa2; }
+    .result-count { margin:0 0 16px; color:#718197; font-size:12px; }
+    @media(max-width:1050px) { .search-grid { grid-template-columns:repeat(3,1fr); } .search-field:first-child { grid-column:1/-1; } }
+    @media(max-width:620px) { .search-grid { grid-template-columns:1fr 1fr; } .search-field:first-child { grid-column:1/-1; } .search-panel .btn { grid-column:1/-1; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">Каталог квартир</p><h1>Поиск квартир</h1><p class="lead">Найдите квартиру по адресу, зданию, номеру и параметрам.</p></div><a class="btn btn-light" href="{% url 'apartment_all' %}">Все квартиры</a></div>
+<form class="search-panel" method="get" action="{% url 'apartment_search' %}" role="search">
+    <div class="search-grid">
+        <div class="search-field"><label for="search-q">Название, адрес или номер</label><input id="search-q" type="search" name="q" value="{{ q }}" placeholder="Например: Сомони или 12"></div>
+        <div class="search-field"><label for="search-building">Здание</label><input id="search-building" name="building" value="{{ building }}" placeholder="Название"></div>
+        <div class="search-field"><label for="search-floor">Этаж</label><input id="search-floor" type="number" min="0" name="floor" value="{{ floor }}" placeholder="Любой"></div>
+        <div class="search-field"><label for="search-rooms">Комнаты</label><input id="search-rooms" type="number" min="1" name="rooms" value="{{ rooms }}" placeholder="Любое"></div>
+        <div class="search-field"><label for="search-price">Цена до</label><input id="search-price" type="number" min="0" step="0.01" name="max_price" value="{{ max_price }}" placeholder="Без ограничения"></div>
+        <button class="btn btn-primary" type="submit">Найти</button>
+    </div>
+</form>
+<p class="result-count">Найдено квартир: {{ apartments|length }}</p>
+<section class="cards" aria-label="Результаты поиска">
+    {% for apartment in apartments %}
+    <article class="apartment-card">
+        <a class="card-image" href="{% url 'apartment_detail' apartment.pk %}">{% if apartment.image %}<img src="{{ apartment.image.url }}" alt="Квартира №{{ apartment.number }}" loading="lazy">{% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3zM9 21v-6h6v6"/></svg>{% endif %}<span class="badge status-{{ apartment.status }}">{{ apartment.get_status_display }}</span></a>
+        <div class="card-body"><h2><a href="{% url 'apartment_detail' apartment.pk %}">Квартира №{{ apartment.number }}</a></h2><p class="card-subtitle"><a href="{% url 'bulding_detail' apartment.building.pk %}">{{ apartment.building.name }}</a> · {{ apartment.building.address }}</p><div class="meta-grid"><div class="meta-item"><span>Этаж</span><strong>{{ apartment.floor }}</strong></div><div class="meta-item"><span>Комнаты</span><strong>{{ apartment.rooms }}</strong></div><div class="meta-item"><span>Площадь</span><strong>{{ apartment.area }} м²</strong></div><div class="meta-item"><span>Цена</span><strong>{{ apartment.price }} сомонӣ</strong></div></div><div class="card-actions"><a class="btn btn-primary" href="{% url 'apartment_detail' apartment.pk %}">Подробнее</a></div></div>
+    </article>
+    {% empty %}<div class="empty"><h2>Ничего не найдено</h2><p>Попробуйте изменить параметры поиска.</p><a class="btn btn-light" href="{% url 'apartment_search' %}">Сбросить фильтры</a></div>{% endfor %}
+</section>
+{% endblock %}

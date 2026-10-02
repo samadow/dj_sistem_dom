@@ -1,0 +1,14 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Корбарон ва нақшҳо | Manzil{% endblock %}
+{% block users_active %}active{% endblock %}
+{% block extra_css %}{% include "dashboard_styles.html" %}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div><p class="eyebrow">Управление доступом</p><h1>Пользователи и менеджеры</h1><p class="lead">Назначайте менеджеров среди зарегистрированных пользователей.</p></div>
+    <a class="btn btn-light" href="{% url 'dahsboard' %}">К обзору</a>
+</div>
+<div class="table-scroll"><table class="data-table"><thead><tr><th>Пользователь</th><th>Телефон</th><th>Роль</th><th>Действие</th></tr></thead><tbody>
+{% for person in users %}<tr><td><strong>{{ person.username }}</strong></td><td>{{ person.phone_number }}</td><td><span class="status-chip">{{ person.get_role_display }}</span></td><td><div class="table-actions">{% if person.role == 'user' %}<form method="post" action="{% url 'make_manager' person.pk %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Назначить менеджером</button></form>{% elif person.role == 'manager' %}<form method="post" action="{% url 'remove_manager' person.pk %}">{% csrf_token %}<button class="btn btn-light" type="submit">Снять роль</button></form>{% else %}<span class="dash-pill">Admin</span>{% endif %}</div></td></tr>
+{% empty %}<tr><td colspan="4" class="dash-empty">Пользователей пока нет.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

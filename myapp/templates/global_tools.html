@@ -1,0 +1,78 @@
+<style>
+    .global-tools { margin:0 auto 24px; max-width:1260px; }
+    .global-search { display:flex; align-items:center; gap:11px; padding:8px 8px 8px 16px; border:1px solid #e0e9ef; border-radius:15px; background:#fff; box-shadow:0 9px 24px rgba(28,53,77,.045); }
+    .global-search svg { width:19px; height:19px; flex:0 0 19px; color:#7790a4; }
+    .global-search input { width:100%; min-width:0; height:37px; border:0; outline:0; color:#182b42; background:transparent; font:inherit; font-size:13px; }
+    .global-search input::placeholder { color:#91a1ae; }
+    .global-search .btn { flex:0 0 auto; }
+    .chat-launcher { position:fixed; z-index:42; right:clamp(16px,3vw,34px); bottom:clamp(16px,3vw,32px); width:62px; height:62px; display:grid; place-items:center; border:0; border-radius:19px; color:#fff; background:linear-gradient(145deg,#0eaaa2,#087f7d); box-shadow:0 15px 32px rgba(5,101,102,.3); cursor:pointer; transition:transform .2s,box-shadow .2s; }
+    .chat-launcher:hover { transform:translateY(-3px); box-shadow:0 19px 36px rgba(5,101,102,.38); }
+    .chat-launcher svg { width:28px; height:28px; }
+    .chat-launcher:focus-visible,.chat-close:focus-visible { outline:3px solid #74e6d9; outline-offset:3px; }
+    .chat-window { position:fixed; z-index:43; right:clamp(16px,3vw,34px); bottom:calc(clamp(16px,3vw,32px) + 76px); width:min(390px,calc(100vw - 32px)); height:min(570px,calc(100dvh - 118px)); display:flex; flex-direction:column; overflow:hidden; border:1px solid #dbe8eb; border-radius:21px; background:#fff; box-shadow:0 25px 70px rgba(18,47,72,.24); }
+    .chat-window[hidden] { display:none; }
+    .chat-head { display:flex; align-items:center; gap:11px; padding:15px 17px; color:#fff; background:linear-gradient(115deg,#183c59,#0b7778); }
+    .chat-head-icon { width:39px; height:39px; display:grid; place-items:center; border-radius:12px; color:#0c6265; background:#bff4eb; font-size:17px; font-weight:850; }
+    .chat-head strong,.chat-head small { display:block; }
+    .chat-head strong { font-size:14px; }
+    .chat-head small { margin-top:3px; color:#c7e7e6; font-size:10px; }
+    .chat-close { margin-left:auto; width:32px; height:32px; display:grid; place-items:center; border:0; border-radius:9px; color:#fff; background:rgba(255,255,255,.14); font-size:23px; cursor:pointer; }
+    .chat-messages { flex:1; display:flex; flex-direction:column; gap:12px; overflow-y:auto; padding:17px; background:#f5f9fb; }
+    .chat-message { max-width:88%; padding:11px 13px; border-radius:15px; font-size:12px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .chat-message.assistant { align-self:flex-start; border-bottom-left-radius:5px; color:#28435a; background:#fff; box-shadow:0 3px 12px rgba(25,53,77,.06); }
+    .chat-message.user { align-self:flex-end; border-bottom-right-radius:5px; color:#fff; background:#0eaaa2; }
+    .chat-message.error { color:#9d3349; background:#fff1f3; }
+    .chat-form { display:flex; align-items:end; gap:8px; padding:12px; border-top:1px solid #e5edf1; background:#fff; }
+    .chat-form textarea { flex:1; min-width:0; min-height:43px; max-height:100px; resize:vertical; padding:11px 12px; border:1px solid #dae6eb; border-radius:11px; outline:0; color:#182b42; font:inherit; font-size:12px; }
+    .chat-form textarea:focus { border-color:#0eaaa2; box-shadow:0 0 0 3px rgba(14,170,162,.12); }
+    .chat-form button { flex:0 0 auto; min-height:43px; padding:0 13px; border:0; border-radius:11px; color:#fff; background:#0eaaa2; font:inherit; font-size:12px; font-weight:800; cursor:pointer; }
+    .chat-form button:disabled { opacity:.55; cursor:wait; }
+    @media(max-width:620px) { .global-search { flex-wrap:wrap; } .global-search input { flex:1; } .global-search .btn { width:100%; } .chat-launcher { width:54px; height:54px; border-radius:16px; } .chat-window { bottom:82px; height:min(560px,calc(100dvh - 98px)); } }
+</style>
+<div class="global-tools">
+    <form class="global-search" method="get" action="{% url 'apartment_search' %}" role="search" aria-label="Поиск квартир">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Поиск квартир по зданию, адресу или номеру" aria-label="Поиск квартир">
+        <button class="btn btn-primary" type="submit">Найти</button>
+    </form>
+</div>
+<button class="chat-launcher" type="button" aria-label="Открыть AI-чат" aria-expanded="false" aria-controls="ai-chat-window" data-chat-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h8M8 14h5"/></svg></button>
+<section class="chat-window" id="ai-chat-window" role="dialog" aria-label="AI-чат Manzil" hidden data-chat-window>
+    <div class="chat-head"><span class="chat-head-icon" aria-hidden="true">✦</span><span><strong>Помощник Manzil</strong><small>Задайте вопрос о поиске квартиры</small></span><button class="chat-close" type="button" aria-label="Закрыть чат" data-chat-close>×</button></div>
+    <div class="chat-messages" role="log" aria-live="polite" data-chat-messages><div class="chat-message assistant">Здравствуйте! Чем могу помочь?</div></div>
+    <form class="chat-form" method="post" action="{% url 'ai' %}" data-chat-form>{% csrf_token %}<textarea name="question" rows="1" maxlength="1500" placeholder="Напишите сообщение..." aria-label="Сообщение для AI" required></textarea><button type="submit">Отправить</button></form>
+</section>
+<noscript><a href="{% url 'ai' %}">Открыть AI-чат</a></noscript>
+<script>
+(() => {
+    const openButton=document.querySelector('[data-chat-open]');
+    const panel=document.querySelector('[data-chat-window]');
+    const closeButton=document.querySelector('[data-chat-close]');
+    const form=document.querySelector('[data-chat-form]');
+    const log=document.querySelector('[data-chat-messages]');
+    if(!openButton||!panel||!form||!log)return;
+    const field=form.elements.question;
+    const add=(role,content)=>{const bubble=document.createElement('div');bubble.className='chat-message '+role;bubble.textContent=content;log.appendChild(bubble);log.scrollTop=log.scrollHeight;};
+    const close=()=>{panel.hidden=true;openButton.setAttribute('aria-expanded','false');openButton.focus();};
+    openButton.addEventListener('click',async()=>{
+        const show=panel.hidden;
+        panel.hidden=!show;
+        openButton.setAttribute('aria-expanded',String(show));
+        if(!show)return;
+        field.focus();
+        try{const response=await fetch(form.action,{headers:{'X-Requested-With':'XMLHttpRequest'}});if(response.ok){const data=await response.json();log.replaceChildren();if(data.history.length){data.history.forEach(item=>add(item.role==='user'?'user':'assistant',item.content));}else add('assistant','Здравствуйте! Чем могу помочь?');}}catch(error){add('error','Не удалось загрузить историю чата.');}
+    });
+    closeButton.addEventListener('click',close);
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!panel.hidden)close();});
+    form.addEventListener('submit',async event=>{
+        event.preventDefault();
+        const question=field.value.trim();
+        if(!question)return;
+        add('user',question);field.value='';
+        const button=form.querySelector('button[type="submit"]');button.disabled=true;
+        try{const body=new FormData(form);body.set('question',question);const response=await fetch(form.action,{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest'},body});const data=await response.json();if(response.ok&&data.answer)add('assistant',data.answer);else add('error',data.error||'Не удалось получить ответ.');}
+        catch(error){add('error','Нет соединения с AI-чатом. Попробуйте позже.');}
+        finally{button.disabled=false;field.focus();}
+    });
+})();
+</script>

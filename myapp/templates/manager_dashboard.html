@@ -1,0 +1,46 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Панели Manager | Manzil{% endblock %}
+{% block dashboard_active %}active{% endblock %}
+{% block extra_css %}{% include "dashboard_styles.html" %}{% endblock %}
+{% block content %}
+<section class="dash-hero">
+    <div>
+        <span class="dash-kicker">Рабочий обзор</span>
+        <h1>Здравствуйте, {{ current_user.username }}</h1>
+        <p>Следите за ожидающими заявками, бронированиями и доступными квартирами.</p>
+    </div>
+    <a class="btn" href="{% url 'booking_all' %}">Бронирования ↗</a>
+</section>
+
+<div class="dash-grid" aria-label="Вазифаҳои ҷорӣ">
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Заявки без ответа</span><span class="dash-stat-icon">?</span></div><strong>{{ unanswered_count }}</strong></div>
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Бронь на рассмотрении</span><span class="dash-stat-icon">◷</span></div><strong>{{ pending_count }}</strong></div>
+    <div class="dash-stat"><div class="dash-stat-top"><span class="dash-stat-label">Свободные квартиры</span><span class="dash-stat-icon">⌂</span></div><strong>{{ available_count }}</strong></div>
+</div>
+
+<div class="dash-two dash-section">
+    <section>
+        <div class="dash-section-head"><h2>Саволҳои беҷавоб</h2><a href="{% url 'inquiry_all' %}">Ҳамааш →</a></div>
+        <div class="dash-panel"><ul class="dash-list">
+            {% for inquiry in unanswered_inquiries %}<li><div><a href="{% url 'inquiry_up' inquiry.pk %}"><strong>{{ inquiry.apartment }}</strong></a><small>{{ inquiry.question|truncatechars:65 }}</small></div><span class="dash-pill waiting">Ҷавоб диҳед</span></li>
+            {% empty %}<li><span class="dash-empty">Ҳамаи саволҳо ҷавоб доранд.</span></li>{% endfor %}
+        </ul></div>
+    </section>
+    <section>
+        <div class="dash-section-head"><h2>Бронҳои интизор</h2><a href="{% url 'booking_all' %}">Ҳамааш →</a></div>
+        <div class="dash-panel"><ul class="dash-list">
+            {% for booking in pending_bookings %}<li><div><a href="{% url 'booking_all' %}"><strong>{{ booking.apartment }}</strong></a><small>{{ booking.user.username }} · {{ booking.created_at|date:"d.m.Y" }}</small></div><span class="dash-pill waiting">Дар интизорӣ</span></li>
+            {% empty %}<li><span class="dash-empty">Брони интизор нест.</span></li>{% endfor %}
+        </ul></div>
+    </section>
+</div>
+
+<section class="dash-section">
+    <div class="dash-section-head"><h2>Амалҳои зуд</h2></div>
+    <div class="dash-action-grid">
+        <a class="dash-action" href="{% url 'apartment_cr' %}"><span><strong>Хонаи нав</strong><small>Ба бинои мавҷуда илова кунед</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'sale_cr' %}"><span><strong>Сабти фурӯш</strong><small>Харидор ва нархро сабт кунед</small></span><span class="dash-arrow">↗</span></a>
+        <a class="dash-action" href="{% url 'apartment_all' %}"><span><strong>Рӯйхати хонаҳо</strong><small>Нарх ва ҳолатҳоро бинед</small></span><span class="dash-arrow">↗</span></a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Квартираи нав | Manzil{% endblock %}
+{% block apartments_active %}active{% endblock %}
+{% block content %}
+    <div class="page-head">
+        <div><p class="eyebrow">Идоракунии амвол</p><h1>Квартираи нав</h1><p class="lead">Маълумоти квартираро пур карда, онро ба бинои мувофиқ илова намоед.</p></div>
+        <a class="btn btn-light" href="{% url 'apartment_all' %}">Ҳамаи квартираҳо</a>
+    </div>
+    <section class="panel">
+        <div class="panel-head">
+            <span class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg></span>
+            <div><strong>Маълумоти квартира</strong><span>Ҳамаи майдонҳои заруриро пур кунед.</span></div>
+        </div>
+        <form class="model-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-fields">{{ form.as_p }}</div>
+            <div class="form-actions">
+                <a class="btn btn-light" href="{% url 'apartment_all' %}">Бекор кардан</a>
+                <button class="btn btn-primary" type="submit">Сабт кардани квартира</button>
+            </div>
+        </form>
+    </section>
+{% endblock %}

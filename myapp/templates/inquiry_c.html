@@ -1,0 +1,30 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Дархости нав | Manzil{% endblock %}
+{% block inquiries_active %}active{% endblock %}
+{% block content %}
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Идоракунии дархостҳо</p>
+            <h1>Дархости нав</h1>
+            <p class="lead">Корбар, квартира ва саволро интихоб карда, дархостро сабт намоед.</p>
+        </div>
+        <a class="btn btn-light" href="{% url 'inquiry_all' %}">Ҳамаи дархостҳо</a>
+    </div>
+
+    <section class="panel">
+        <div class="panel-head">
+            <span class="panel-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+            </span>
+            <div><strong>Маълумоти дархост</strong><span>Ҳамаи майдонҳои заруриро пур кунед.</span></div>
+        </div>
+        <form class="model-form" method="post">
+            {% csrf_token %}
+            <div class="form-fields">{{ form.as_p }}</div>
+            <div class="form-actions">
+                <a class="btn btn-light" href="{% url 'inquiry_all' %}">Бекор кардан</a>
+                <button class="btn btn-primary" type="submit">Сабт кардани дархост</button>
+            </div>
+        </form>
+    </section>
+{% endblock %}

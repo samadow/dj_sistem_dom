@@ -1,0 +1,29 @@
+{% extends "dashboard_base.html" %}
+{% block title %}AI ёрдамчӣ | Manzil{% endblock %}
+{% block ai_active %}active{% endblock %}
+{% block global_tools %}{% endblock %}
+{% block extra_css %}
+<style>
+    .ai-page { max-width:760px; overflow:hidden; border:1px solid #e2eaf0; border-radius:22px; background:#fff; box-shadow:0 16px 40px rgba(28,53,77,.07); }
+    .ai-history { min-height:280px; max-height:55vh; display:flex; flex-direction:column; gap:13px; overflow-y:auto; padding:23px; background:#f5f9fb; }
+    .ai-bubble { max-width:82%; padding:12px 15px; border-radius:15px; white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; line-height:1.6; }
+    .ai-bubble.assistant { align-self:flex-start; color:#25445b; background:#fff; border-bottom-left-radius:4px; }
+    .ai-bubble.user { align-self:flex-end; color:#fff; background:#0eaaa2; border-bottom-right-radius:4px; }
+    .ai-form { display:flex; gap:12px; align-items:end; padding:16px; border-top:1px solid #e5edf1; }
+    .ai-form textarea { flex:1; min-height:48px; padding:12px; border:1px solid #dbe5ed; border-radius:11px; font:inherit; resize:vertical; }
+    .ai-error { margin:0; padding:12px 18px; color:#a43b4e; background:#fff0f2; font-size:12px; }
+    @media(max-width:620px) { .ai-history { min-height:250px; padding:16px; } .ai-form { flex-direction:column; align-items:stretch; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">Ёрдамчӣ</p><h1>AI ёрдамчии Manzil</h1><p class="lead">Дар бораи интихоби хона савол диҳед. Нарх ва мавҷудияти ҷориро аз рӯйхати хонаҳо санҷед.</p></div><a class="btn btn-light" href="{% url 'apartment_search' %}">Ҷустуҷӯи хонаҳо</a></div>
+<section class="ai-page" aria-label="Суҳбат бо ёрдамчӣ">
+    <div class="ai-history" role="log" aria-live="polite">
+        {% for message in history %}<div class="ai-bubble {% if message.role == 'user' %}user{% else %}assistant{% endif %}">{{ message.content }}</div>
+        {% empty %}<div class="ai-bubble assistant">Салом! Дар интихоби хона чӣ тавр ёрӣ диҳам?</div>{% endfor %}
+    </div>
+    {% if error %}<p class="ai-error" role="alert">{{ error }}</p>{% endif %}
+    <form class="ai-form" method="post" action="{% url 'ai' %}">{% csrf_token %}<textarea name="question" rows="2" maxlength="1500" placeholder="Саволатонро нависед..." aria-label="Савол барои AI" required>{{ question }}</textarea><button class="btn btn-primary" type="submit">Фиристодан</button></form>
+</section>
+<script>const historyPanel = document.querySelector('.ai-history'); if (historyPanel) historyPanel.scrollTop = historyPanel.scrollHeight;</script>
+{% endblock %}
